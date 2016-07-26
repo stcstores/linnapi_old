@@ -152,3 +152,24 @@ def get_inventory(api_session, location='Default'):
                     value=e_row['PropertyValue'], name=e_row['Property'],
                     item_stock_id=item.stock_id)
                 item.extended_properties.append(new_extended_property)
+
+
+def get_order_id(api_session, order_number):
+    from linnapi.api_requests import GetOpenOrderIDByOrderOrReferenceID
+    from linnapi.api_requests import SearchProcessedOrdersPaged
+    open_order_request = \
+        GetOpenOrderIDByOrderOrReferenceID(
+            api_session, order_number)
+    open_order_request.response.raise_for_status()
+    if open_order_request.response.text == 'null':
+        processed_order_request = \
+            SearchProcessedOrdersPaged(
+                api_session, order_number, date_type='ALLDATES',
+                exact_match=True, search_field='nOrderId')
+        if len(processed_order_request.response_dict['Data']) == 1:
+            return processed_order_request.response_dict[
+                'Data'][0]['pkOrderID']
+        else:
+            return None
+    else:
+        return open_order_request.response_dict
