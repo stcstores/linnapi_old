@@ -3,3 +3,4 @@
 **.csv
 **.~lock**
 build/**
+**config.json
